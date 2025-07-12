@@ -46,10 +46,18 @@ export default function Navbar({ setVistaActual }) {
         </ul>
 
         <div className="d-flex align-items-center gap-2">
-          {/* Botón Total (siempre visible) */}
+          {/* Botón Carrito */}
+          <button
+            className="btn btn-outline-light btn-sm"
+            onClick={() => setVistaActual('cart')}
+          >
+            🛒 Carrito
+          </button>
+
+          {/* Botón Total (siempre visible) 
           <button className="btn btn-outline-light btn-sm">
             🛒 Total: {formatCurrency(total)}
-          </button>
+          </button>*/}
 
           {/* Botones condicionales según login */}
           {token ? (
@@ -78,3 +86,4 @@ export default function Navbar({ setVistaActual }) {
     </nav>
   );
 }
+

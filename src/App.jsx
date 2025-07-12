@@ -5,6 +5,8 @@ import Footer from './components/Footer'
 import Home from './views/Home'
 import Register from './components/Register'
 import Login from './components/Login'
+import Cart from './components/Cart'
+
 
 function App() {
   const [vistaActual, setVistaActual] = useState('home') // 'home', 'register' o 'login'
@@ -16,6 +18,7 @@ function App() {
       {vistaActual === 'home' && <Home />}
       {vistaActual === 'register' && <Register />}
       {vistaActual === 'login' && <Login />}
+      {vistaActual === 'cart' && <Cart />}
 
       <Footer />
     </>

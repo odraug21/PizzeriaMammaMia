@@ -1,11 +1,15 @@
 import { formatCurrency } from "../utils/formatCurrency";
 
-export default function CardPizza({ name, price, ingredients, img }) {
+export default function CardPizza({ name, price, ingredients, img, desc }) {
   return (
     <div className="card shadow-sm" style={{ width: "18rem" }}>
       <img src={img} className="card-img-top" alt={name} />
       <div className="card-body d-flex flex-column justify-content-between">
         <h5 className="card-title">{name}</h5>
+
+        <p className="card-text text-muted small" style={{ minHeight: "80px" }}>
+          {desc}
+        </p>
 
         <ul className="list-unstyled">
           {ingredients.map((ingredient, index) => (
