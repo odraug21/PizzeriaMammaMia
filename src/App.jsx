@@ -8,32 +8,62 @@ import PizzaDetail from "./pages/PizzaDetail";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicateRoute"; // <-- Importa PublicRoute
 
-import { CartProvider } from "./context/CartContext"; // <-- Importa el CartProvider
-import { PizzaProvider } from "./Context/PizzaContext"; // 
+import { CartProvider } from "./context/CartContext";
+import { PizzaProvider } from "./context/PizzaContext";
+import { UserProvider } from "./context/UserContext";
 
 function App() {
   return (
-    <CartProvider>
-      <PizzaProvider>
-      <BrowserRouter>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/PizzaDetail/p001" element={<PizzaDetail />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/404" element={<NotFound />} />
-          {/* ruta por defecto para páginas no existentes */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-      </PizzaProvider>
-    </CartProvider>
+    <UserProvider>
+      <CartProvider>
+        <PizzaProvider>
+          <BrowserRouter>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<Home />} />
+
+              {/* Rutas públicas solo si no hay token */}
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <Login />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <PublicRoute>
+                    <Register />
+                  </PublicRoute>
+                }
+              />
+
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/PizzaDetail/:id" element={<PizzaDetail />} />
+
+              {/* Ruta protegida */}
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route path="/404" element={<NotFound />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </PizzaProvider>
+      </CartProvider>
+    </UserProvider>
   );
 }
 
 export default App;
-

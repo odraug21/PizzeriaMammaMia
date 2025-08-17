@@ -1,13 +1,36 @@
-// src/pages/PizzaDetail.jsx
-import { useContext } from "react";
-import { PizzaContext } from "../context/PizzaContext";
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
-const PizzaDetail = ({ id }) => {
-  const { pizzas, loading } = useContext(PizzaContext); // <-- Consumimos el contexto
-  const pizza = pizzas.find((p) => p.id === id);
+const PizzaDetail = ({ id: propId }) => {
+  const { id: paramId } = useParams(); // id de la URL
+  const pizzaId = propId || paramId;   // usamos propId si existe, si no el de la URL
+
+  const [pizza, setPizza] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!pizzaId) return;
+
+    setLoading(true);
+    fetch(`http://localhost:5000/api/pizzas/${pizzaId}`)
+      .then(res => {
+        if (!res.ok) throw new Error('Error al obtener la pizza');
+        return res.json();
+      })
+      .then(data => {
+        setPizza(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [pizzaId]);
 
   if (loading) return <p>Cargando pizza...</p>;
-  if (!pizza) return <p>Pizza no encontrada</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!pizza) return null;
 
   return (
     <div className="card mb-4 p-3" style={{ maxWidth: '900px' }}>
@@ -19,7 +42,7 @@ const PizzaDetail = ({ id }) => {
         />
         <div className="flex-grow-1">
           <h3 className="card-title text-capitalize">{pizza.name}</h3>
-          <p><strong>Descripción:</strong> {pizza.desc || pizza.description}</p>
+          <p><strong>Descripción:</strong> {pizza.desc}</p>
           <p><strong>Precio:</strong> ${pizza.price}</p>
           <p><strong>Ingredientes:</strong> {pizza.ingredients.join(', ')}</p>
         </div>
@@ -29,4 +52,5 @@ const PizzaDetail = ({ id }) => {
 };
 
 export default PizzaDetail;
+
 

@@ -2,10 +2,12 @@
 import { Link } from "react-router-dom";
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext"; // Importa el CartContext
+import { UserContext } from "../context/UserContext";
 import { formatCurrency } from "../utils/formatCurrency";
 
-export default function Navbar({ token = false }) {
-  const { total } = useContext(CartContext); // Consumimos el total del carrito
+export default function Navbar() {
+  const { total } = useContext(CartContext);
+  const { token, logout } = useContext(UserContext); // <-- Consumimos token y logout
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">

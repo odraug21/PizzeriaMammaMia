@@ -1,10 +1,12 @@
 // src/components/Cart.jsx
 import { useContext } from "react";
 import { CartContext } from "../context/CartContext";
+import { UserContext } from "../context/UserContext"; // <-- Importa UserContext
 import { formatCurrency } from "../utils/formatCurrency";
 
 export default function Cart() {
   const { cartItems, addToCart, removeFromCart, deleteFromCart } = useContext(CartContext);
+  const { token } = useContext(UserContext); // <-- Consumimos token
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -69,10 +71,16 @@ export default function Cart() {
 
           <div className="text-center mt-4">
             <h4>Total: {formatCurrency(total)}</h4>
-            <button className="btn btn-success mt-2">Pagar</button>
+            <button 
+              className="btn btn-success mt-2"
+              disabled={!token} // <-- Botón deshabilitado si token es false
+            >
+              Pagar
+            </button>
           </div>
         </>
       )}
     </div>
   );
 }
+
