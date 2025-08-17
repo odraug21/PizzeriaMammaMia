@@ -1,30 +1,21 @@
-import { useEffect, useState } from 'react';
+// src/pages/Home.jsx
+import { useContext, useState } from 'react';
 import Header from '../components/Header';
 import CardPizza from '../components/CardPizza';
 import PizzaDetail from './PizzaDetail';
+import { CartContext } from "../context/CartContext";
+import { PizzaContext } from "../context/PizzaContext"; // <-- Importamos el contexto de pizzas
 
 const Home = () => {
-  const [pizzas, setPizzas] = useState([]);
-  const [pizzaDestacadaId, setPizzaDestacadaId] = useState('p003'); // Id fijo por defecto
-
-  useEffect(() => {
-    const fetchPizzas = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/pizzas');
-        const data = await response.json();
-        setPizzas(data);
-      } catch (error) {
-        console.error('Error al cargar las pizzas:', error);
-      }
-    };
-
-    fetchPizzas();
-  }, []);
+  const { pizzas, loading } = useContext(PizzaContext); // <-- Consumimos las pizzas
+  const { addToCart } = useContext(CartContext);       // <-- Consumimos addToCart
+  const [pizzaDestacadaId, setPizzaDestacadaId] = useState('p003');
 
   return (
     <div>
       <Header />
-      {/* Pizza destacada, recibe id dinámico */}
+
+      {/* Pizza destacada */}
       <section className="my-4">
         <h1>Detalle Pizza Destacada</h1>
         <PizzaDetail id={pizzaDestacadaId} />
@@ -33,19 +24,32 @@ const Home = () => {
       {/* Listado de pizzas */}
       <div className="container mt-4">
         <div className="row g-4 justify-content-center">
-          {pizzas.map((pizza) => (
-            <div key={pizza.id} className="col-auto">
-              <CardPizza
-                id={pizza.id}
-                name={pizza.name}
-                price={pizza.price}
-                ingredients={pizza.ingredients}
-                img={pizza.img}
-                desc={pizza.desc}
-                onClick={() => setPizzaDestacadaId(pizza.id)} // Cambia pizza destacada al hacer click
-              />
-            </div>
-          ))}
+          {loading ? (
+            <p>Cargando pizzas...</p>
+          ) : (
+            pizzas.map((pizza) => (
+              <div key={pizza.id} className="col-auto">
+                <CardPizza
+                  id={pizza.id}
+                  name={pizza.name}
+                  price={pizza.price}
+                  ingredients={pizza.ingredients}
+                  img={pizza.img}
+                  desc={pizza.desc}
+                  onClick={() => setPizzaDestacadaId(pizza.id)}
+                  onAddToCart={() =>
+                    addToCart({ 
+                      id: pizza.id,
+                      name: pizza.name,
+                      price: pizza.price,
+                      img: pizza.img,
+                      quantity: 1
+                    })
+                  }
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>

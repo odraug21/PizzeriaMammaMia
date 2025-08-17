@@ -1,8 +1,12 @@
 // src/components/Navbar.jsx
 import { Link } from "react-router-dom";
+import { useContext } from "react";
+import { CartContext } from "../context/CartContext"; // Importa el CartContext
 import { formatCurrency } from "../utils/formatCurrency";
 
-export default function Navbar({ total = 25000, token = false }) {
+export default function Navbar({ token = false }) {
+  const { total } = useContext(CartContext); // Consumimos el total del carrito
+
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
       <Link className="navbar-brand" to="/">
@@ -30,7 +34,7 @@ export default function Navbar({ total = 25000, token = false }) {
         </ul>
 
         <div className="d-flex align-items-center gap-2">
-          {/* Botón Carrito */}
+          {/* Botón Carrito con total dinámico */}
           <Link to="/cart" className="btn btn-outline-light btn-sm">
             🛒 Total: {formatCurrency(total)}
           </Link>
@@ -58,5 +62,6 @@ export default function Navbar({ total = 25000, token = false }) {
     </nav>
   );
 }
+
 
 

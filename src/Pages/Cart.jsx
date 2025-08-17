@@ -1,41 +1,22 @@
 // src/components/Cart.jsx
-import { useState } from "react";
-import { pizzaCart } from "../utils/pizzas";
+import { useContext } from "react";
+import { CartContext } from "../context/CartContext";
 import { formatCurrency } from "../utils/formatCurrency";
 
 export default function Cart() {
-  const [cart, setCart] = useState(pizzaCart);
+  const { cartItems, addToCart, removeFromCart, deleteFromCart } = useContext(CartContext);
 
-  // Función para aumentar la cantidad
-  const increase = (id) => {
-    const updated = cart.map((item) =>
-      item.id === id ? { ...item, count: item.count + 1 } : item
-    );
-    setCart(updated);
-  };
-
-  // Función para disminuir la cantidad
-  const decrease = (id) => {
-    const updated = cart
-      .map((item) =>
-        item.id === id ? { ...item, count: item.count - 1 } : item
-      )
-      .filter((item) => item.count > 0); // elimina si llega a 0
-    setCart(updated);
-  };
-
-  // Calcular total
-  const total = cart.reduce((sum, item) => sum + item.price * item.count, 0);
+  const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">🛒 Carrito de Compras</h2>
 
-      {cart.length === 0 ? (
+      {cartItems.length === 0 ? (
         <p className="text-center">Tu carrito está vacío.</p>
       ) : (
         <>
-          {cart.map((item) => (
+          {cartItems.map((item) => (
             <div
               key={item.id}
               className="card mb-3 shadow-sm"
@@ -59,24 +40,27 @@ export default function Cart() {
                       Cantidad:
                       <button
                         className="btn btn-outline-secondary btn-sm mx-2"
-                        onClick={() => decrease(item.id)}
+                        onClick={() => removeFromCart(item.id)}
                       >
                         -
                       </button>
-                      <span>{item.count}</span>
+                      <span>{item.quantity}</span>
                       <button
                         className="btn btn-outline-secondary btn-sm mx-2"
-                        onClick={() => increase(item.id)}
+                        onClick={() => addToCart({ ...item, quantity: 1 })}
                       >
                         +
                       </button>
                     </p>
                     <p className="card-text text-end">
-                      Subtotal:{" "}
-                      <strong>
-                        {formatCurrency(item.price * item.count)}
-                      </strong>
+                      Subtotal: <strong>{formatCurrency(item.price * item.quantity)}</strong>
                     </p>
+                    <button
+                      className="btn btn-outline-danger btn-sm"
+                      onClick={() => deleteFromCart(item.id)}
+                    >
+                      Eliminar
+                    </button>
                   </div>
                 </div>
               </div>
