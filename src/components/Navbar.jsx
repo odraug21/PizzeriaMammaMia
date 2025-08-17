@@ -1,21 +1,13 @@
+// src/components/Navbar.jsx
+import { Link } from "react-router-dom";
 import { formatCurrency } from "../utils/formatCurrency";
 
-export default function Navbar({ setVistaActual }) {
-  const total = 25000; // Valor referencial
-  const token = false; // simula si el usuario está logueado
-
+export default function Navbar({ total = 25000, token = false }) {
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-      <a
-        className="navbar-brand"
-        href="#"
-        onClick={(e) => {
-          e.preventDefault();
-          setVistaActual('home');
-        }}
-      >
+      <Link className="navbar-brand" to="/">
         Pizzería Mamma Mía!
-      </a>
+      </Link>
       <button
         className="navbar-toggler"
         type="button"
@@ -30,55 +22,35 @@ export default function Navbar({ setVistaActual }) {
 
       <div className="collapse navbar-collapse" id="navbarSupportedContent">
         <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-          {/* Botón Home (siempre visible) */}
           <li className="nav-item">
-            <a
-              className="nav-link active"
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setVistaActual('home');
-              }}
-            >
+            <Link className="nav-link active" to="/">
               🏠 Home
-            </a>
+            </Link>
           </li>
         </ul>
 
         <div className="d-flex align-items-center gap-2">
           {/* Botón Carrito */}
-          <button
-            className="btn btn-outline-light btn-sm"
-            onClick={() => setVistaActual('cart')}
-          >
-            🛒 Carrito
-          </button>
-
-          {/* Botón Total (siempre visible) 
-          <button className="btn btn-outline-light btn-sm">
+          <Link to="/cart" className="btn btn-outline-light btn-sm">
             🛒 Total: {formatCurrency(total)}
-          </button>*/}
+          </Link>
 
           {/* Botones condicionales según login */}
           {token ? (
             <>
-              <button className="btn btn-outline-light btn-sm">🔓 Profile</button>
+              <Link to="/profile" className="btn btn-outline-light btn-sm">
+                🔓 Profile
+              </Link>
               <button className="btn btn-outline-light btn-sm">🔒 Logout</button>
             </>
           ) : (
             <>
-              <button
-                className="btn btn-outline-light btn-sm"
-                onClick={() => setVistaActual('login')}
-              >
+              <Link to="/login" className="btn btn-outline-light btn-sm">
                 🔐 Login
-              </button>
-              <button
-                className="btn btn-outline-light btn-sm"
-                onClick={() => setVistaActual('register')}
-              >
+              </Link>
+              <Link to="/register" className="btn btn-outline-light btn-sm">
                 🔐 Register
-              </button>
+              </Link>
             </>
           )}
         </div>
@@ -86,4 +58,5 @@ export default function Navbar({ setVistaActual }) {
     </nav>
   );
 }
+
 
