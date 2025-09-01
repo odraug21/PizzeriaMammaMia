@@ -7,7 +7,7 @@ import { formatCurrency } from "../utils/formatCurrency";
 
 export default function Navbar() {
   const { total } = useContext(CartContext);
-  const { token, logout } = useContext(UserContext); // <-- Consumimos token y logout
+  const { isAuthenticated, logout } = useContext(UserContext);// <-- Consumimos token y logout
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">

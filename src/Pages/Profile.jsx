@@ -1,17 +1,20 @@
 // src/Pages/Profile.jsx
-import React, { useState } from "react";
+import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { email, getProfile, logout } = useContext(UserContext);
 
-  // Email de ejemplo, puedes reemplazarlo con estado o props según tu app
-  const [email] = useState("OdraugProyectos@Gmail.com");
+  // Poblar el email si recargaste la página
+  useEffect(() => {
+    if (!email) getProfile();
+  }, [email, getProfile]);
 
   const handleLogout = () => {
-    // Codigo para token o un estado de perfil de usuario, ahora solo va al login
-    
-    navigate("/login");
+    logout();          // cerramos sesión real
+    navigate("/login"); // redirigimos al login
   };
 
   const styles = {
@@ -45,7 +48,7 @@ export default function Profile() {
   return (
     <div style={styles.container}>
       <h1>Perfil del Usuario</h1>
-      <p style={styles.email}>{email}</p>
+      <p style={styles.email}>{email || "Cargando..."}</p>
       <button style={styles.button} onClick={handleLogout}>
         Cerrar sesión
       </button>

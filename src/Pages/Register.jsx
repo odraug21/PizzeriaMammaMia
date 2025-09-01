@@ -1,14 +1,19 @@
 // src/components/Register.jsx
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { UserContext } from '../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
+  const { register } = useContext(UserContext); // <-- agregamos contexto
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email || !password || !confirmPassword) {
@@ -29,11 +34,19 @@ export default function Register() {
       return;
     }
 
-    setMessage('¡Usuario registrado con éxito!');
-    setError(false);
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
+    // <-- registramos con UserContext
+    const ok = await register(email, password);
+    if (ok) {
+      setMessage('¡Usuario registrado con éxito!');
+      setError(false);
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      navigate('/profile'); // opcional, ir al perfil
+    } else {
+      setMessage('Error al registrar usuario.');
+      setError(true);
+    }
   };
 
   return (
