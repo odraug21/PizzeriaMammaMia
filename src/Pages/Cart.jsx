@@ -1,18 +1,48 @@
-// src/components/Cart.jsx
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { CartContext } from "../context/CartContext";
-import { UserContext } from "../context/UserContext"; // <-- Importa UserContext
+import { UserContext } from "../context/UserContext";
 import { formatCurrency } from "../utils/formatCurrency";
 
 export default function Cart() {
   const { cartItems, addToCart, removeFromCart, deleteFromCart } = useContext(CartContext);
-  const { token } = useContext(UserContext); // <-- Consumimos token
+  const { token } = useContext(UserContext);
+  const [message, setMessage] = useState(""); // <-- estado para mensajes
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handleCheckout = async () => {
+    if (!token) return alert("Debes iniciar sesión para realizar la compra.");
+
+    try {
+      const res = await fetch("http://localhost:5000/api/checkouts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ cart: cartItems }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setMessage("✅ Compra realizada con éxito");
+      } else {
+        setMessage(data.message || "❌ Error en el checkout");
+      }
+    } catch (err) {
+      console.error(err);
+      setMessage("❌ Error de conexión con el servidor");
+    }
+  };
 
   return (
     <div className="container mt-5">
       <h2 className="text-center mb-4">🛒 Carrito de Compras</h2>
+
+      {message && (
+        <div className="alert alert-info text-center">{message}</div>
+      )}
 
       {cartItems.length === 0 ? (
         <p className="text-center">Tu carrito está vacío.</p>
@@ -73,7 +103,8 @@ export default function Cart() {
             <h4>Total: {formatCurrency(total)}</h4>
             <button 
               className="btn btn-success mt-2"
-              disabled={!token} // <-- Botón deshabilitado si token es false
+              disabled={!token}
+              onClick={handleCheckout}
             >
               Pagar
             </button>
@@ -83,4 +114,5 @@ export default function Cart() {
     </div>
   );
 }
+
 
