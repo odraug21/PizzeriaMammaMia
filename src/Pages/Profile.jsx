@@ -1,16 +1,20 @@
-// src/Pages/Profile.jsx
+// src/pages/Profile.jsx
 import React, { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { email, getProfile, logout } = useContext(UserContext);
+  const { email, getProfile, logout, token } = useContext(UserContext);
 
-  // Poblar el email si recargaste la página
+  // Si no hay token, redirige al login
   useEffect(() => {
-    if (!email) getProfile();
-  }, [email, getProfile]);
+    if (!token) {
+      navigate("/login");
+    } else if (!email) {
+      getProfile(); // poblar email si recargaste
+    }
+  }, [token, email, getProfile, navigate]);
 
   const handleLogout = () => {
     logout();          // cerramos sesión real
@@ -55,3 +59,4 @@ export default function Profile() {
     </div>
   );
 }
+

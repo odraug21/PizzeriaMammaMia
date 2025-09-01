@@ -12,7 +12,7 @@ export default function Login() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!email || !password) {
@@ -27,15 +27,35 @@ export default function Login() {
       return;
     }
 
-    // Llamamos a login del contexto
-    login({ email });
-    setMessage('¡Inicio de sesión exitoso!');
-    setError(false);
-    setEmail('');
-    setPassword('');
+    try {
+      // Llamada al backend
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    // Redirigir a home o perfil
-    navigate('/');
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.message || "Error al iniciar sesión");
+        setError(true);
+        return;
+      }
+
+      // Guardamos el token y el email en UserContext
+      login({ email, token: data.token });
+
+      setMessage('¡Inicio de sesión exitoso!');
+      setError(false);
+      setEmail('');
+      setPassword('');
+
+      navigate('/profile'); // redirige a perfil
+    } catch (err) {
+      setMessage("Error de conexión con el servidor");
+      setError(true);
+    }
   };
 
   return (

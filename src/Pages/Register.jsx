@@ -4,7 +4,7 @@ import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function Register() {
-  const { register } = useContext(UserContext); // <-- agregamos contexto
+  const { register } = useContext(UserContext); // <-- contexto
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -34,17 +34,34 @@ export default function Register() {
       return;
     }
 
-    // <-- registramos con UserContext
-    const ok = await register(email, password);
-    if (ok) {
+    try {
+      // Petición al backend
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setMessage(data.message || "Error al registrar usuario");
+        setError(true);
+        return;
+      }
+
+      // Guardamos token y email en UserContext
+      register({ email, token: data.token });
+
       setMessage('¡Usuario registrado con éxito!');
       setError(false);
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      navigate('/profile'); // opcional, ir al perfil
-    } else {
-      setMessage('Error al registrar usuario.');
+
+      navigate('/profile'); // redirige a perfil
+    } catch (err) {
+      setMessage('Error de conexión con el servidor');
       setError(true);
     }
   };

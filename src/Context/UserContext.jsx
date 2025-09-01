@@ -1,66 +1,128 @@
 // src/context/UserContext.jsx
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 
-// 1. Crear el contexto
+// Creación contexto
 export const UserContext = createContext();
 
-// 2. Crear el provider
+// Creación provider
 export const UserProvider = ({ children }) => {
-  const [token, setToken] = useState(null); // ahora null al inicio
-  const [user, setUser] = useState(null);   // guarda info del usuario logueado
+  const [email, setEmail] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!token);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState(null);
 
-  // Función para login
-  const login = async (email, password) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) throw new Error("Error en login");
-
-      const data = await response.json();
-      setToken(data.token);
-      setUser(data.user); // depende de lo que devuelva tu API
-      return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
+  // Valida login
+  const login = ({ email, token }) => {
+    setEmail(email);
+    setToken(token);
+    setIsAuthenticated(true);
+    localStorage.setItem("token", token);
   };
 
-  // Función para register
-  const register = async (email, password) => {
-    try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) throw new Error("Error en register");
-
-      const data = await response.json();
-      setToken(data.token);
-      setUser(data.user);
-      return true;
-    } catch (error) {
-      console.error(error);
-      return false;
-    }
-  };
-
-  // Función para logout
+  // Valida logout
   const logout = () => {
+    setEmail(null);
     setToken(null);
-    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem("token");
   };
+
+  // Función register, valida el usuario
+  const register = async (email, password) => {
+    setAuthLoading(true);
+    setAuthError(null);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.message || "Error al registrar usuario");
+        setAuthLoading(false);
+        return false;
+      }
+
+      login({ email, token: data.token });
+      setAuthLoading(false);
+      return true;
+    } catch (err) {
+      setAuthError("Error de conexión con el servidor");
+      setAuthLoading(false);
+      return false;
+    }
+  };
+
+  // Proceso login con backend
+  const loginWithBackend = async (email, password) => {
+    setAuthLoading(true);
+    setAuthError(null);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setAuthError(data.message || "Error al iniciar sesión");
+        setAuthLoading(false);
+        return false;
+      }
+
+      login({ email, token: data.token });
+      setAuthLoading(false);
+      return true;
+    } catch (err) {
+      setAuthError("Error de conexión con el servidor");
+      setAuthLoading(false);
+      return false;
+    }
+  };
+
+  // Obtiene el perfil del usuario
+  const getProfile = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) setEmail(data.email);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  //  Carga el perfil al montar si hay token
+  useEffect(() => {
+    if (token && !email) getProfile();
+  }, [token]);
 
   return (
-    <UserContext.Provider value={{ token, user, login, register, logout }}>
+    <UserContext.Provider
+      value={{
+        email,
+        token,
+        isAuthenticated,
+        authLoading,
+        authError,
+        login: loginWithBackend,
+        logout,
+        register,
+        getProfile,
+      }}
+    >
       {children}
     </UserContext.Provider>
   );
 };
+
 
