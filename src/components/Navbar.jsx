@@ -1,13 +1,13 @@
 // src/components/Navbar.jsx
 import { Link } from "react-router-dom";
 import { useContext } from "react";
-import { CartContext } from "../context/CartContext"; // Importa el CartContext
+import { CartContext } from "../context/CartContext";
 import { UserContext } from "../context/UserContext";
 import { formatCurrency } from "../utils/formatCurrency";
 
 export default function Navbar() {
   const { total } = useContext(CartContext);
-  const { isAuthenticated, logout } = useContext(UserContext);// <-- Consumimos token y logout
+  const { isAuthenticated, logout } = useContext(UserContext);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
@@ -42,12 +42,17 @@ export default function Navbar() {
           </Link>
 
           {/* Botones condicionales según login */}
-          {token ? (
+          {isAuthenticated ? (
             <>
               <Link to="/profile" className="btn btn-outline-light btn-sm">
                 🔓 Profile
               </Link>
-              <button className="btn btn-outline-light btn-sm">🔒 Logout</button>
+              <button
+                onClick={logout}
+                className="btn btn-outline-light btn-sm"
+              >
+                🔒 Logout
+              </button>
             </>
           ) : (
             <>
@@ -64,6 +69,7 @@ export default function Navbar() {
     </nav>
   );
 }
+
 
 
 
